@@ -54,8 +54,19 @@ def load_data():
         #df_aktxma is already just the wanted cities
         df_aktxma_temperature = df_aktxma.pivot(index=pd.to_datetime(df_aktxma['Date.Full']), columns='Station.City', values='Data.Temperature.Avg Temp')
         df_aktxma_precipitation = df_aktxma.pivot(index=pd.to_datetime(df_aktxma['Date.Full']), columns='Station.City', values='Data.Precipitation')
+##########################
 
-
+        df_aktxma_temperature["Date"] = pd.to_datetime(df_aktxma_temperature["Date.Full"])
+        plt.plot(df_aktxma_temperature["Date"], df_aktxma_temperature["Temperature"], label="Average temperature in Anchorage in Celsius")
+        plt.plot(df_aktxma_temperature["Date"], df_aktxma_temperature["Temperature"], label="Average temperature in Boston in Celsius")
+        plt.plot(df_aktxma_temperature["Date"], df_aktxma_temperature["Temperature"], label="Average temperature in Dallas-Fort Worth in Celsius")
+        plt.xlabel("Date")
+        plt.ylabel("Average Temperature (°C)")
+        plt.title("Average Temperature per City Over Time")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+##########################
         return data.DataFrame
     except Exception as e:
         print(f"Error loading data: {e}")
