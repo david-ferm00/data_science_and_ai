@@ -154,3 +154,100 @@ def five_point_summary(s):
     return summary
 
 price_2023_gothenburg_five_point_summary = five_point_summary(df_2023_gothenburg["price"])
+
+#######
+_, ax = plt.subplots() # axis for plotting histogram
+
+counts, bins, _ = ax.hist(df_2023_gothenburg["price"], bins = int(np.ceil(1 + np.log2(len(df_2023_gothenburg["price"])))), histtype = 'bar')
+
+loc = np.arange(0, 20000000 + 2500000/2, 2500000)
+labels = ["0.0", "2.5", "5.0", "7.5", "10.0", "12.5", "15.0", "17.5", "20.0"]
+plt.xticks(loc, labels)
+plt.xlabel("Price (MSEK)")
+plt.ylabel("Count")
+plt.title("Histogram over Prices in Gothenburg 2023")
+plt.grid(True)
+plt.show()
+
+#######
+
+_, ax = plt.subplots(figsize=(10, 6))#adjust figsize as needed
+
+unique_room_numbers = df_2023_gothenburg["rooms"].unique()
+unique_room_numbers = [x if x != None else -1 for x in unique_room_numbers]
+unique_room_numbers.sort()
+unique_room_numbers = [x if x != -1 else None for x in unique_room_numbers]
+
+color_assignment = []
+for apartment in df_2023_gothenburg["rooms"]:
+    color_assignment.append(unique_room_numbers.index(apartment))
+
+unique_room_numbers = [x if x != None else "None" for x in unique_room_numbers]
+
+scatter = ax.scatter(df_2023_gothenburg["area"], df_2023_gothenburg["price"], c=color_assignment, cmap='tab20c')
+
+plt.xlabel("Area in M²")
+plt.ylabel("Price in MSEK")
+plt.title("Scatterplot of Area vs Price in Gothenburg 2023")
+
+handles, _ = scatter.legend_elements()
+plt.legend(handles, unique_room_numbers, title="Number of Rooms", loc="best", ) # adjust legend position as needed
+
+plt.grid(True)
+plt.show()
+
+#########
+
+df_2023_gothenburg_w_psqm = df_2023_gothenburg.copy()
+
+series = []
+for index in df_2023_gothenburg_w_psqm.index:
+    area = df_2023_gothenburg_w_psqm["area"][index]
+    price = df_2023_gothenburg_w_psqm["price"][index]
+    if area != 0 and area != None and price != None:
+        series.append(price / area)
+    else:
+        series.append(None)
+df_2023_gothenburg_w_psqm["price_per_sqm"] = series
+
+########
+
+unique_room_numbers = df_2023_gothenburg_w_psqm["rooms"].unique()
+unique_room_numbers = [x if x != None else -1 for x in unique_room_numbers]
+unique_room_numbers.sort()
+unique_room_numbers = [x if x != -1 else None for x in unique_room_numbers]
+
+axis_labels = [i for i in range(1, len(unique_room_numbers))]
+
+_, ax = plt.subplots() # axis for plotting
+barchart = ax.bar(axis_labels, df_2023_gothenburg_w_psqm.groupby(["rooms"])["price_per_sqm"].mean(), color='blue', width=0.4)
+plt.xticks(axis_labels, unique_room_numbers[1:])
+plt.xlabel("Number of rooms")
+plt.ylabel("Average price per square meter (SEK/m²)")
+plt.title("Average Price per Square Meter by Number of Rooms in Gothenburg 2023")
+
+plt.grid(True)
+plt.show()
+
+###########
+
+series_price_per_sqm_5_cheapest = df_2023_gothenburg_w_psqm.groupby("district")["price_per_sqm"].mean().sort_values(ascending=True).head(5)
+series_price_per_sqm_5_most_expensive = df_2023_gothenburg_w_psqm.groupby("district")["price_per_sqm"].mean().sort_values(ascending=False).head(5).sort_values(ascending=True)
+
+data = pd.concat([series_price_per_sqm_5_cheapest, series_price_per_sqm_5_most_expensive])
+
+axis_labels = [i for i in range(1, len(data)+1)]
+
+_, ax = plt.subplots(figsize=(7, 7)) # axis for plotting
+barchart = ax.bar(axis_labels, data, color='blue', width=0.4)
+
+ax.set_xticks(axis_labels)
+ax.set_xticklabels(data.index, rotation=90)
+
+plt.xlabel("District")
+plt.ylabel("Average price per square meter (SEK/m²)")
+plt.title("Average Price per Square Meter by District in Gothenburg 2023")
+
+plt.grid(True)
+plt.show()
+
