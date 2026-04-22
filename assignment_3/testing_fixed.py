@@ -283,7 +283,7 @@ x = np.array(df.copy().drop(binary_target, axis=1))
 
 X_train, X_test, y_train, y_test = train_test_split_manual(x, y)
 
-model = NaiveBinaryBayes(alpha=0.0)
+model = NaiveBinaryBayes(alpha=1.0)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
