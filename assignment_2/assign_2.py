@@ -30,6 +30,8 @@ def extract_files(zipfilename):
     z_object.close()
     return data
 
+data = extract_files('gothenburg_sold_apartments.zip')
+
 ######
 
 def extract_announcements(page):
